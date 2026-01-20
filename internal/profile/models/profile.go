@@ -9,6 +9,14 @@ const (
 	Female
 )
 
+type UserRole int 
+
+const (
+	Admin UserRole = iota
+	User 
+	Guest
+)
+
 type Profile struct {
 	ID          int64
 	UserID      int64
@@ -18,7 +26,7 @@ type Profile struct {
 	Username    string
 	Name        string
 	Surname     string
-	Patronomyc  *string
+	Patronymic  *string
 	Email       string
 	PhoneNumber *string
 	Sex         *UserSex
@@ -40,3 +48,4 @@ type UserPurpose struct {
 	UserID  int64
 	Purpose string
 }
+

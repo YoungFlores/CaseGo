@@ -9,8 +9,8 @@ import (
 
 type ProfileRepo interface {
 	CreateProfile(ctx context.Context, user *models.Profile) (*models.Profile, error)
-	AddSocial(ctx context.Context, links []string) error
-	CreatePupose(ctx context.Context, pupose string) (*models.UserPurpose, error)
+	AddSocial(ctx context.Context, links []models.UserSocialLink) error
+	CreatePupose(ctx context.Context, puposes []models.UserPurpose) (*models.UserPurpose, error)
 	
 	GetUserProfile(ctx context.Context, userId int64) (*models.Profile, error)
 	GetUserSocials(ctx context.Context, userID int64) ([]string, error)
