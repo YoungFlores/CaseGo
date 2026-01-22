@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/sewaustav/CaseGoProfile/internal/profile/dto"
 	"github.com/sewaustav/CaseGoProfile/internal/profile/models"
 )
 
@@ -22,9 +23,11 @@ type ProfileRepo interface {
 	GetAllUsers(ctx context.Context, limit int) ([]models.Profile, error)
 
 	UpdateProfile(ctx context.Context, user *models.Profile) (*models.Profile, error)
-	PathcProfile(ctx context.Context, input *models.Profile) (*models.Profile, error) // todo - write dto for method
-	EditSocial(ctx context.Context, link string, id int64) ([]string, error)
-	EditPurpose(ctx context.Context, purpose string, id int64) (*models.UserPurpose, error)
+	PathcProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) // todo - write dto for method
+	UpdateLinks(ctx context.Context, links []models.UserSocialLink) ([]models.UserSocialLink, error) 
+	EditSocial(ctx context.Context, link *models.UserSocialLink) ([]models.UserSocialLink, error)
+	UpdatePurposes(ctx context.Context, purposes []models.UserPurpose) ([]models.UserPurpose, error)
+	EditPurpose(ctx context.Context, purpose *models.UserPurpose) ([]models.UserPurpose, error)
 
 	DeletePupose(ctx context.Context, id int64) error
 	DeleteSocial(ctx context.Context, id int64) error

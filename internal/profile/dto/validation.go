@@ -32,6 +32,15 @@ type UserPurposeDTO struct {
 	Purpose string `json:"purpose" validate:"required,min=5"`
 }
 
-type UpdateProfileInfoDTO struct {
-	
+type UpdateProfilePartialDTO struct {
+    Avatar      *string `json:"avatar"`
+    Username    *string `json:"username" validate:"omitempty,min=3,max=30"`
+    Name        *string `json:"name"`
+    Surname     *string `json:"surname"`
+    Patronymic  *string `json:"patronymic"` 
+    Email       *string `json:"email" validate:"omitempty,email"` // warning!!! maybe not there
+    PhoneNumber *string `json:"phone_number"` // same as email
+    Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
+    Description *string `json:"description" validate:"omitempty,max=500"`
+    Profession  *string `json:"profession"`
 }
