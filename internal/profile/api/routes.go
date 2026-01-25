@@ -13,6 +13,7 @@ func SetupRouter(handler *ProfileHandler, jwtMiddleware *middleware.JWTAuthMiddl
 	{
 		protected.POST("/profile", handler.CreateProfileHandler)
 		protected.GET("/profile", handler.GetUserProfileHandler)
+		protected.GET("/profile/:id", handler.GetUserByProfileIDHandler)
 		protected.PUT("/profile", handler.UpdateProfileHandler)
 		protected.PATCH("/profile", handler.PatchProfileHandler)
 		protected.DELETE("/profile", handler.DeleteProfileHandler)

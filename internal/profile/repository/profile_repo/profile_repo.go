@@ -15,7 +15,7 @@ type ProfileRepo interface {
 	// crud methods 
 	CreateProfile(ctx context.Context, user *models.Profile) (*models.Profile, error)
 	AddSocial(ctx context.Context, links []models.UserSocialLink) ([]models.UserSocialLink, error)
-	AddPurposes(ctx context.Context, puposes []models.UserPurpose) ([]models.UserPurpose, error)
+	AddPurposes(ctx context.Context, purposes []models.UserPurpose) ([]models.UserPurpose, error)
 	
 	GetProfileByID(ctx context.Context, id int64) (*models.Profile, error)
 	GetUserByProfileID(ctx context.Context, id, userID int64) (int64, error)

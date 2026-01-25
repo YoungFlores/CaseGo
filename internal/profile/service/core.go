@@ -160,10 +160,26 @@ func(s *ProfileService) UpdateProfileService(ctx context.Context, usr models.Use
 		CaseCount: 0,
 		UpdatedAt: now,
 		// optional - nil possible
-		Patronymic: req.Patronymic,
-		PhoneNumber: req.PhoneNumber,
-		Sex: sexPtr,
-		Profession: req.Profession,
+		// Patronymic: req.Patronymic,
+		// PhoneNumber: req.PhoneNumber,
+		// Sex: sexPtr,
+		// Profession: req.Profession,
+	}
+	
+	if req.Patronymic != nil {
+		profile.Patronymic = req.Patronymic
+	}
+	
+	if req.PhoneNumber != nil {
+		profile.PhoneNumber = req.PhoneNumber
+	}
+	
+	if req.Sex != nil {
+		profile.Sex = sexPtr
+	}
+	
+	if req.Profession != nil {
+		profile.Profession = req.Profession
 	}
 
 	updatedProfile, err := s.repo.UpdateProfile(ctx, profile) 
