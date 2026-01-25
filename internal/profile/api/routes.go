@@ -2,14 +2,14 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sewaustav/CaseGoProfile/pkg/middleware"
+	"github.com/sewaustav/CaseGoProfile/pkg/middleware/rs256"
 )
 
-func SetupRouter(handler *ProfileHandler, jwtMiddleware *middleware.JWTAuthMiddleware) *gin.Engine {
+func SetupRouter(handler *ProfileHandler, jwtMiddleware *rs256.JWTAuthMiddleware) *gin.Engine {
 	r := gin.Default()
 	
 	protected := r.Group("profile/api/v1")
-	protected.Use()
+	protected.Use(jwtMiddleware.Handler())
 	{
 		protected.POST("/profile", handler.CreateProfileHandler)
 		protected.GET("/profile", handler.GetUserProfileHandler)

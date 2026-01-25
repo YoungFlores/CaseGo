@@ -7,7 +7,7 @@ import (
 	"github.com/sewaustav/CaseGoProfile/internal/profile/repository/db"
 	profilerepo "github.com/sewaustav/CaseGoProfile/internal/profile/repository/profile_repo"
 	profileService "github.com/sewaustav/CaseGoProfile/internal/profile/service"
-	"github.com/sewaustav/CaseGoProfile/pkg/middleware"
+	"github.com/sewaustav/CaseGoProfile/pkg/middleware/rs256"
 )
 
 type Sever struct {
@@ -32,15 +32,20 @@ func New() (*Sever, error) {
 	profileRepo := profilerepo.NewPostgresProfileRepo(database.GetDB())
 
 	profileService := profileService.NewProfileService(profileRepo)
+	
+	publicKey, err := ParseRSAPublicKey(config.PublicKey)
+	if err != nil {
+		return nil, err 
+	}
 
-	jwtMiddleware := middleware.NewJwtAuthmiddleware()
+	jwtMiddleware := rs256.New(publicKey, "", "")
 
 	profileHandlers := api.NewProfileHandler(profileService)
 
 	api := api.SetupRouter(profileHandlers, jwtMiddleware)
 
 	srv := &http.Server{
-		Addr: "8080",
+		Addr: ":8080",
 		Handler: api, 
 	}
 	

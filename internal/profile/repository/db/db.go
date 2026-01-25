@@ -14,7 +14,7 @@ type DataBase struct {
 func (d *DataBase) Open(dbName, dbUser, dbPassword, dbHost string) error {
 
 	psqlInfo := fmt.Sprintf(
-		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable", 
+		"host=%s port=5433 user=%s password=%s dbname=%s sslmode=disable", 
 		dbHost, 
 		dbUser, 
 		dbPassword, 
