@@ -1,0 +1,473 @@
+basePath: /profile/api/v1
+definitions:
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.CreateProfileRequest:
+    properties:
+      info:
+        $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfileInfoDTO'
+      purposes:
+        items:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO'
+        minItems: 1
+        type: array
+      social_links:
+        items:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO'
+        type: array
+    required:
+    - info
+    - purposes
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfileInfoDTO:
+    properties:
+      avatar:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      phone_number:
+        type: string
+      profession:
+        type: string
+      sex:
+        enum:
+        - 0
+        - 1
+        type: integer
+      surname:
+        type: string
+      username:
+        maxLength: 30
+        minLength: 3
+        type: string
+    required:
+    - avatar
+    - email
+    - name
+    - surname
+    - username
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO:
+    properties:
+      type:
+        type: string
+      url:
+        type: string
+    required:
+    - type
+    - url
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UpdateProfilePartialDTO:
+    properties:
+      avatar:
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      email:
+        description: warning!!! maybe not there
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      phone_number:
+        description: same as email
+        type: string
+      profession:
+        type: string
+      sex:
+        enum:
+        - 0
+        - 1
+        type: integer
+      surname:
+        type: string
+      username:
+        maxLength: 30
+        minLength: 3
+        type: string
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO:
+    properties:
+      purpose:
+        minLength: 5
+        type: string
+    required:
+    - purpose
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile:
+    properties:
+      avatar:
+        type: string
+      case_count:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      patronymic:
+        type: string
+      phone_number:
+        type: string
+      profession:
+        type: string
+      sex:
+        $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserSex'
+      surname:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserSex:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Male
+    - Female
+host: localhost:8080
+info:
+  contact: {}
+  description: API сервис для управления профилями пользователей.
+  title: Profile Service API
+  version: "1.0"
+paths:
+  /profile:
+    delete:
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Мягкое удаление своего профиля
+      tags:
+      - profile
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile'
+        "204":
+          description: Профиль не активен
+      security:
+      - BearerAuth: []
+      summary: Получить свой профиль
+      tags:
+      - profile
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Поля для обновления
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UpdateProfilePartialDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile'
+      security:
+      - BearerAuth: []
+      summary: Частично обновить профиль
+      tags:
+      - profile
+    post:
+      consumes:
+      - application/json
+      description: Создает профиль пользователя с соцсетями и целями
+      parameters:
+      - description: Данные профиля
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.CreateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Профиль успешно создан
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict - Field already taken
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать новый профиль
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Новые данные профиля
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfileInfoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile'
+        "409":
+          description: Conflict - Field already taken
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Полное обновление профиля
+      tags:
+      - profile
+  /profile/{id}:
+    delete:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+      security:
+      - BearerAuth: []
+      summary: Полное удаление профиля (Admin only)
+      tags:
+      - profile
+    get:
+      description: Позволяет просмотреть чужой профиль по его ID
+      parameters:
+      - description: ID профиля
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.Profile'
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      security:
+      - BearerAuth: []
+      summary: Получить профиль по ID
+      tags:
+      - profile
+  /profile/purpose/{id}:
+    delete:
+      parameters:
+      - description: ID цели
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+      security:
+      - BearerAuth: []
+      summary: Удалить цель
+      tags:
+      - purpose
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID цели
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные цели
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO'
+        "403":
+          description: Forbidden - Not your purpose
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      tags:
+      - purpose
+  /profile/purposes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Список целей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.UserPurposeDTO'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Создать новые цели
+      tags:
+      - purpose
+  /profile/social:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Список ссылок
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Добавить ссылки на соцсети
+      tags:
+      - social
+  /profile/social/{id}:
+    delete:
+      parameters:
+      - description: ID ссылки
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+      security:
+      - BearerAuth: []
+      summary: Удалить соц. ссылку
+      tags:
+      - social
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID ссылки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные ссылки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.SocialLinkDTO'
+        "403":
+          description: Forbidden - Not your link
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить конкретную соц. ссылку
+      tags:
+      - social
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
