@@ -29,6 +29,7 @@ type Profile struct {
 	Name        string    `json:"name" db:"name"`
 	Surname     string    `json:"surname" db:"surname"`
 	Patronymic  *string   `json:"patronymic" db:"patronymic"`
+	City        *string   `json:"city" db:"city"`
 	Age         *int      `json:"age" db:"age"`
 	Sex         *UserSex  `json:"sex" db:"sex"`
 	Profession  *string   `json:"profession" db:"profession"`

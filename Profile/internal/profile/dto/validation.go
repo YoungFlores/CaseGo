@@ -16,8 +16,7 @@ type ProfileInfoDTO struct {
 	Name        string  `json:"name" validate:"required"`
 	Surname     string  `json:"surname" validate:"required"`
 	Patronymic  *string `json:"patronymic,omitempty"`
-	Email       string  `json:"email" validate:"required,email"`
-	PhoneNumber *string `json:"phone_number,omitempty" validate:"omitempty,e164"`
+	City        *string `json:"city,omitempty"`
 	Age         *int    `json:"age" validate:"omitempty,min=14,max=120"`
 	Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
 	Description string  `json:"description" validate:"max=500"`
@@ -39,6 +38,7 @@ type UpdateProfilePartialDTO struct {
 	Name        *string `json:"name"`
 	Surname     *string `json:"surname"`
 	Patronymic  *string `json:"patronymic"`
+	City        *string `json:"city"`
 	Age         *int    `json:"age" validate:"omitempty,min=14,max=120"`
 	Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
 	Description *string `json:"description" validate:"omitempty,max=500"`

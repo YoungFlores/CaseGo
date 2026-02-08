@@ -11,6 +11,9 @@ import (
 	profileHandler "github.com/YoungFlores/Case_Go/Profile/internal/profile/handlers"
 	profileRepo "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo"
 	profileService "github.com/YoungFlores/Case_Go/Profile/internal/profile/service"
+	"github.com/YoungFlores/Case_Go/Profile/internal/search/handlers"
+	searchRepo "github.com/YoungFlores/Case_Go/Profile/internal/search/repository"
+	"github.com/YoungFlores/Case_Go/Profile/internal/search/service"
 	"github.com/YoungFlores/Case_Go/Profile/pkg/middleware/rs256"
 )
 
@@ -36,16 +39,19 @@ func New() (*Sever, error) {
 
 	pr := profileRepo.NewPostgresProfileRepo(database.GetDB())
 	cr := repo.NewPostgresCategoryRepo(database.GetDB())
+	sr := searchRepo.NewPostgresSearchRepo(database.GetDB())
 
 	ps := profileService.NewProfileService(pr)
 	cs := categoryService.NewProfessionCategoryService(cr)
+	ss := service.NewSearchService(sr)
 
 	jwtMiddleware := rs256.New(config.PublicKey, "auth", "all")
 
 	profileHandlers := profileHandler.NewProfileHandler(ps)
 	categoryHandler := categoriesHandler.NewProfessionCategoryHandler(cs)
+	searchHandler := handlers.NewSearchHandler(ss)
 
-	router := api.SetupRouter(profileHandlers, categoryHandler, jwtMiddleware)
+	router := api.SetupRouter(profileHandlers, searchHandler, categoryHandler, jwtMiddleware)
 
 	srv := &http.Server{
 		Addr:    ":8080",

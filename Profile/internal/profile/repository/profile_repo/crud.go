@@ -18,7 +18,7 @@ var psql = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 var profileColumns = []string{
 	"id", "user_id", "avatar", "is_active", "description",
-	"username", "name", "surname", "patronymic", "age",
+	"username", "name", "surname", "patronymic", "city", "age",
 	"sex", "profession", "case_count", "created_at", "updated_at",
 }
 
@@ -29,8 +29,8 @@ var profileReturning = strings.Join(profileColumns, ", ")
 func (r *PostgresProfileRepo) CreateProfile(ctx context.Context, profile *models.Profile) (*models.Profile, error) {
 	now := time.Now()
 	query := psql.Insert("profiles").
-		Columns("user_id", "avatar", "is_active", "description", "username", "name", "surname", "patronymic", "age", "sex", "profession", "case_count", "created_at", "updated_at").
-		Values(profile.UserID, profile.Avatar, profile.IsActive, profile.Description, profile.Username, profile.Name, profile.Surname, profile.Patronymic, profile.Age, profile.Sex, profile.Profession, profile.CaseCount, now, now).
+		Columns("user_id", "avatar", "is_active", "description", "username", "name", "surname", "patronymic", "city", "age", "sex", "profession", "case_count", "created_at", "updated_at").
+		Values(profile.UserID, profile.Avatar, profile.IsActive, profile.Description, profile.Username, profile.Name, profile.Surname, profile.Patronymic, profile.City, profile.Age, profile.Sex, profile.Profession, profile.CaseCount, now, now).
 		Suffix("RETURNING id, created_at, updated_at")
 
 	sqlStr, args, err := query.ToSql()
@@ -242,6 +242,7 @@ func (r *PostgresProfileRepo) UpdateProfile(ctx context.Context, profile *models
 		Set("name", profile.Name).
 		Set("surname", profile.Surname).
 		Set("patronymic", profile.Patronymic).
+		Set("city", profile.City).
 		Set("age", profile.Age).
 		Set("sex", profile.Sex).
 		Set("profession", profile.Profession).
@@ -286,6 +287,9 @@ func (r *PostgresProfileRepo) PatchProfile(ctx context.Context, userID int64, up
 	if updates.Patronymic != nil {
 		query = query.Set("patronymic", updates.Patronymic)
 	}
+	if updates.City != nil {
+		query = query.Set("city", updates.City)
+	}
 	if updates.Age != nil {
 		query = query.Set("age", updates.Age)
 	}
@@ -307,7 +311,7 @@ func (r *PostgresProfileRepo) PatchProfile(ctx context.Context, userID int64, up
 	var p models.Profile
 	err = r.db.QueryRowContext(ctx, sqlStr, args...).Scan(
 		&p.ID, &p.UserID, &p.Avatar, &p.IsActive, &p.Description,
-		&p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.Age,
+		&p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.City, &p.Age,
 		&p.Sex, &p.Profession, &p.CaseCount, &p.CreatedAt, &p.UpdatedAt,
 	)
 	if err != nil {

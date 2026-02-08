@@ -4,6 +4,7 @@ import (
 	_ "github.com/YoungFlores/Case_Go/Profile/docs"
 	categoriesHandler "github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/handlers"
 	profileHandler "github.com/YoungFlores/Case_Go/Profile/internal/profile/handlers"
+	"github.com/YoungFlores/Case_Go/Profile/internal/search/handlers"
 	"github.com/YoungFlores/Case_Go/Profile/pkg/middleware/rs256"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ import (
 	"github.com/swaggo/gin-swagger"
 )
 
-func SetupRouter(profileHandler *profileHandler.ProfileHandler, categoryHandler *categoriesHandler.ProfessionCategoryHandler, jwtMiddleware *rs256.JWTAuthMiddleware) *gin.Engine {
+func SetupRouter(profileHandler *profileHandler.ProfileHandler, searchHandler *handlers.SearchHandler, categoryHandler *categoriesHandler.ProfessionCategoryHandler, jwtMiddleware *rs256.JWTAuthMiddleware) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -27,6 +28,7 @@ func SetupRouter(profileHandler *profileHandler.ProfileHandler, categoryHandler 
 	v1 := r.Group("/profile/api/v1")
 
 	profileHandler.RegisterRoutes(v1, jwtMiddleware)
+	searchHandler.RegisterRoutes(v1, jwtMiddleware)
 	categoryHandler.RegisterRoutes(v1, jwtMiddleware)
 
 	return r
