@@ -12,10 +12,10 @@ import (
 )
 
 type ProfessionCategoryHandler struct {
-	service *service.ProfessionCategoryService
+	service *categoryService.ProfessionCategoryService
 }
 
-func NewProfessionCategoryHandler(service *service.ProfessionCategoryService) *ProfessionCategoryHandler {
+func NewProfessionCategoryHandler(service *categoryService.ProfessionCategoryService) *ProfessionCategoryHandler {
 	return &ProfessionCategoryHandler{
 		service: service,
 	}
