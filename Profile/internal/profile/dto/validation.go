@@ -18,6 +18,7 @@ type ProfileInfoDTO struct {
 	Patronymic  *string `json:"patronymic,omitempty"`
 	Email       string  `json:"email" validate:"required,email"`
 	PhoneNumber *string `json:"phone_number,omitempty" validate:"omitempty,e164"`
+	Age         *int    `json:"age" validate:"omitempty,min=14,max=120"`
 	Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
 	Description string  `json:"description" validate:"max=500"`
 	Profession  *string `json:"profession,omitempty"`
@@ -33,14 +34,13 @@ type UserPurposeDTO struct {
 }
 
 type UpdateProfilePartialDTO struct {
-    Avatar      *string `json:"avatar"`
-    Username    *string `json:"username" validate:"omitempty,min=3,max=30"`
-    Name        *string `json:"name"`
-    Surname     *string `json:"surname"`
-    Patronymic  *string `json:"patronymic"` 
-    Email       *string `json:"email" validate:"omitempty,email"` // warning!!! maybe not there
-    PhoneNumber *string `json:"phone_number"` // same as email
-    Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
-    Description *string `json:"description" validate:"omitempty,max=500"`
-    Profession  *string `json:"profession"`
+	Avatar      *string `json:"avatar"`
+	Username    *string `json:"username" validate:"omitempty,min=3,max=30"`
+	Name        *string `json:"name"`
+	Surname     *string `json:"surname"`
+	Patronymic  *string `json:"patronymic"`
+	Age         *int    `json:"age" validate:"omitempty,min=14,max=120"`
+	Sex         *int    `json:"sex" validate:"omitempty,oneof=0 1"`
+	Description *string `json:"description" validate:"omitempty,max=500"`
+	Profession  *string `json:"profession"`
 }

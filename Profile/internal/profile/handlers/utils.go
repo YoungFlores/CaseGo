@@ -10,7 +10,7 @@ const (
 	RoleKey   = "role"
 )
 
-func (h *ProfileHandler) getUserID(c *gin.Context) (int64, models.UserRole, bool) {
+func (h *ProfileHandler) GetUserID(c *gin.Context) (int64, models.UserRole, bool) {
 	userIDAny, exists := c.Get(UserIDKey)
 	if !exists {
 		return 0, 0, false

@@ -25,13 +25,13 @@ type ProfileRepo interface {
 	GetAllUsers(ctx context.Context, limit int) ([]models.Profile, error)
 
 	UpdateProfile(ctx context.Context, user *models.Profile) (*models.Profile, error)
-	PathcProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) // todo - write dto for method
+	PatchProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) // todo - write dto for method
 	UpdateLinks(ctx context.Context, links []models.UserSocialLink) ([]models.UserSocialLink, error)
 	EditSocial(ctx context.Context, link *models.UserSocialLink) ([]models.UserSocialLink, error)
 	UpdatePurposes(ctx context.Context, purposes []models.UserPurpose) ([]models.UserPurpose, error)
 	EditPurpose(ctx context.Context, purpose *models.UserPurpose) ([]models.UserPurpose, error)
 
-	DeletePupose(ctx context.Context, id int64) error
+	DeletePurpose(ctx context.Context, id int64) error
 	DeleteSocial(ctx context.Context, id int64) error
 	DeleteProfile(ctx context.Context, userID int64) error
 	DeleteProfileWithoutRecovery(ctx context.Context, userID int64) error

@@ -8,8 +8,7 @@ CREATE TABLE profiles (
     name VARCHAR(255) NOT NULL,
     surname VARCHAR(255) NOT NULL,
     patronymic VARCHAR(255),
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone_number VARCHAR(50),
+    age INTEGER,
     sex SMALLINT, 
     profession VARCHAR(255),
     case_count INTEGER NOT NULL DEFAULT 0,
@@ -32,7 +31,21 @@ CREATE TABLE user_purposes (
     CONSTRAINT fk_user_profile_purpose FOREIGN KEY (user_id) REFERENCES profiles(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE users_categories (
+    user_id BIGINT NOT NULL,
+    category_id SMALLINT NOT NULL,
+    CONSTRAINT fk_user_profile_category FOREIGN KEY (user_id) REFERENCES profiles(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE categories (
+    id SMALLSERIAL PRIMARY KEY,
+    parent_id SMALLINT REFERENCES categories(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL
+)
+
 
 CREATE INDEX idx_profiles_user_id ON profiles(user_id);
 CREATE INDEX idx_social_links_user_id ON user_social_links(user_id);
 CREATE INDEX idx_purposes_user_id ON user_purposes(user_id);
+CREATE INDEX idx_users_categories_cat_id ON users_categories(category_id);
+CREATE INDEX idx_users_categories_user_id ON users_categories(user_id);

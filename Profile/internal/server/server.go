@@ -5,6 +5,9 @@ import (
 
 	"github.com/YoungFlores/Case_Go/Profile/internal/api"
 	"github.com/YoungFlores/Case_Go/Profile/internal/db"
+	categoriesHandler "github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/handlers"
+	"github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/repo"
+	categoryService "github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/service"
 	profileHandler "github.com/YoungFlores/Case_Go/Profile/internal/profile/handlers"
 	profileRepo "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo"
 	profileService "github.com/YoungFlores/Case_Go/Profile/internal/profile/service"
@@ -32,14 +35,17 @@ func New() (*Sever, error) {
 	}
 
 	pr := profileRepo.NewPostgresProfileRepo(database.GetDB())
+	cr := repo.NewPostgresCategoryRepo(database.GetDB())
 
 	ps := profileService.NewProfileService(pr)
+	cs := categoryService.NewProfessionCategoryService(cr)
 
 	jwtMiddleware := rs256.New(config.PublicKey, "auth", "all")
 
 	profileHandlers := profileHandler.NewProfileHandler(ps)
+	categoryHandler := categoriesHandler.NewProfessionCategoryHandler(cs)
 
-	router := api.SetupRouter(profileHandlers, jwtMiddleware)
+	router := api.SetupRouter(profileHandlers, categoryHandler, jwtMiddleware)
 
 	srv := &http.Server{
 		Addr:    ":8080",

@@ -25,10 +25,10 @@ func TestCreateProfileService(t *testing.T) {
 	sex := 0
 	req := dto.CreateProfileRequest{
 		Info: dto.ProfileInfoDTO{
-			Name:        "John",
-			Surname:     "Doe",
-			Username:    "johndoe",
-			Email:       "john@example.com",
+			Name:     "John",
+			Surname:  "Doe",
+			Username: "johndoe",
+			//Email:       "john@example.com",
 			Sex:         &sex,
 			Description: "Test user",
 		},
@@ -43,7 +43,7 @@ func TestCreateProfileService(t *testing.T) {
 	expectedProfile := &models.Profile{
 		UserID:   userID,
 		Username: "johndoe",
-		Email:    "john@example.com",
+		//Email:    "john@example.com",
 	}
 
 	expectedLinks := []models.UserSocialLink{

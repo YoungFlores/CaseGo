@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -16,29 +16,35 @@ import (
 
 var psql = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
+var profileColumns = []string{
+	"id", "user_id", "avatar", "is_active", "description",
+	"username", "name", "surname", "patronymic", "age",
+	"sex", "profession", "case_count", "created_at", "updated_at",
+}
+
+var profileReturning = strings.Join(profileColumns, ", ")
+
 // --- Create Methods ---
 
 func (r *PostgresProfileRepo) CreateProfile(ctx context.Context, profile *models.Profile) (*models.Profile, error) {
 	now := time.Now()
 	query := psql.Insert("profiles").
-		Columns("user_id", "avatar", "is_active", "description", "username", "name", "surname", "patronymic", "email", "phone_number", "sex", "profession", "case_count", "created_at", "updated_at").
-		Values(profile.UserID, profile.Avatar, profile.IsActive, profile.Description, profile.Username, profile.Name, profile.Surname, profile.Patronymic, profile.Email, profile.PhoneNumber, profile.Sex, profile.Profession, profile.CaseCount, now, now).
+		Columns("user_id", "avatar", "is_active", "description", "username", "name", "surname", "patronymic", "age", "sex", "profession", "case_count", "created_at", "updated_at").
+		Values(profile.UserID, profile.Avatar, profile.IsActive, profile.Description, profile.Username, profile.Name, profile.Surname, profile.Patronymic, profile.Age, profile.Sex, profile.Profession, profile.CaseCount, now, now).
 		Suffix("RETURNING id, created_at, updated_at")
 
-	sql, args, err := query.ToSql()
+	sqlStr, args, err := query.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.db.QueryRowContext(ctx, sql, args...).Scan(&profile.ID, &profile.CreatedAt, &profile.UpdatedAt)
+	err = r.db.QueryRowContext(ctx, sqlStr, args...).Scan(&profile.ID, &profile.CreatedAt, &profile.UpdatedAt)
 	if err != nil {
 		var pgErr *pq.Error
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == "23505" {
-				return nil, &repoerr.RepoError{
-					Field: extractField(pgErr.Constraint),
-					Err:   repoerr.ErrConflict,
-				}
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return nil, &repoerr.RepoError{
+				Field: extractField(pgErr.Constraint),
+				Err:   repoerr.ErrConflict,
 			}
 		}
 		return nil, fmt.Errorf("scan profile: %w", err)
@@ -48,7 +54,6 @@ func (r *PostgresProfileRepo) CreateProfile(ctx context.Context, profile *models
 }
 
 func (r *PostgresProfileRepo) AddSocial(ctx context.Context, links []models.UserSocialLink) ([]models.UserSocialLink, error) {
-	// TODO: return err
 	if len(links) == 0 {
 		return links, nil
 	}
@@ -59,12 +64,12 @@ func (r *PostgresProfileRepo) AddSocial(ctx context.Context, links []models.User
 	}
 	query = query.Suffix("RETURNING id")
 
-	sql, args, err := query.ToSql()
+	sqlStr, args, err := query.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := r.db.QueryContext(ctx, sql, args...)
+	rows, err := r.db.QueryContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +84,14 @@ func (r *PostgresProfileRepo) AddSocial(ctx context.Context, links []models.User
 		ids = append(ids, id)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	for i := range ids {
-		links[i].ID = ids[i]
+		if i < len(links) {
+			links[i].ID = ids[i]
+		}
 	}
 
 	return links, nil
@@ -97,20 +108,24 @@ func (r *PostgresProfileRepo) AddPurposes(ctx context.Context, purposes []models
 	}
 	query = query.Suffix("RETURNING id")
 
-	sql, args, err := query.ToSql()
+	sqlStr, args, err := query.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := r.db.QueryContext(ctx, sql, args...)
+	rows, err := r.db.QueryContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	for i := 0; rows.Next(); i++ {
-		if err := rows.Scan(&purposes[i].ID); err != nil {
-			return nil, err
+	i := 0
+	for rows.Next() {
+		if i < len(purposes) {
+			if err := rows.Scan(&purposes[i].ID); err != nil {
+				return nil, err
+			}
+			i++
 		}
 	}
 
@@ -120,33 +135,36 @@ func (r *PostgresProfileRepo) AddPurposes(ctx context.Context, purposes []models
 // --- Get Methods ---
 
 func (r *PostgresProfileRepo) GetProfileByID(ctx context.Context, id int64) (*models.Profile, error) {
-	query := psql.Select("*").From("profiles").Where(sq.Eq{"id": id})
+	query := psql.Select(profileColumns...).From("profiles").Where(sq.Eq{"id": id})
 	return r.fetchProfile(ctx, query)
 }
 
 func (r *PostgresProfileRepo) GetUserProfile(ctx context.Context, userID int64) (*models.Profile, error) {
-	query := psql.Select("*").From("profiles").Where(sq.Eq{"user_id": userID})
+	query := psql.Select(profileColumns...).From("profiles").Where(sq.Eq{"user_id": userID})
 	return r.fetchProfile(ctx, query)
 }
 
 func (r *PostgresProfileRepo) GetUserByProfileID(ctx context.Context, id, userID int64) (int64, error) {
-	sql, args, err := psql.Select("user_id").From("profiles").Where(sq.Eq{"id": id, "user_id": userID}).ToSql()
+	sqlStr, args, err := psql.Select("user_id").From("profiles").Where(sq.Eq{"id": id, "user_id": userID}).ToSql()
 	if err != nil {
 		return 0, err
 	}
 
 	var resID int64
-	err = r.db.QueryRowContext(ctx, sql, args...).Scan(&resID)
-	return resID, err
+	err = r.db.QueryRowContext(ctx, sqlStr, args...).Scan(&resID)
+	if err != nil {
+		return 0, err
+	}
+	return resID, nil
 }
 
 func (r *PostgresProfileRepo) GetUserSocials(ctx context.Context, userID int64) ([]models.UserSocialLink, error) {
-	sql, args, err := psql.Select("id", "user_id", "type", "url").From("user_social_links").Where(sq.Eq{"user_id": userID}).ToSql()
+	sqlStr, args, err := psql.Select("id", "user_id", "type", "url").From("user_social_links").Where(sq.Eq{"user_id": userID}).ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := r.db.QueryContext(ctx, sql, args...)
+	rows, err := r.db.QueryContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,12 +182,12 @@ func (r *PostgresProfileRepo) GetUserSocials(ctx context.Context, userID int64) 
 }
 
 func (r *PostgresProfileRepo) GetUserPurposes(ctx context.Context, userID int64) ([]models.UserPurpose, error) {
-	sql, args, err := psql.Select("id", "user_id", "purpose").From("user_purposes").Where(sq.Eq{"user_id": userID}).ToSql()
+	sqlStr, args, err := psql.Select("id", "user_id", "purpose").From("user_purposes").Where(sq.Eq{"user_id": userID}).ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := r.db.QueryContext(ctx, sql, args...)
+	rows, err := r.db.QueryContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,12 +205,12 @@ func (r *PostgresProfileRepo) GetUserPurposes(ctx context.Context, userID int64)
 }
 
 func (r *PostgresProfileRepo) GetAllUsers(ctx context.Context, limit int) ([]models.Profile, error) {
-	sql, args, err := psql.Select("*").From("profiles").Where(sq.Eq{"is_active": true}).Limit(uint64(limit)).ToSql()
+	sqlStr, args, err := psql.Select(profileColumns...).From("profiles").Where(sq.Eq{"is_active": true}).Limit(uint64(limit)).ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := r.db.QueryContext(ctx, sql, args...)
+	rows, err := r.db.QueryContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +219,11 @@ func (r *PostgresProfileRepo) GetAllUsers(ctx context.Context, limit int) ([]mod
 	var profiles []models.Profile
 	for rows.Next() {
 		var p models.Profile
-		err := rows.Scan(&p.ID, &p.UserID, &p.Avatar, &p.IsActive, &p.Description, &p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.Email, &p.PhoneNumber, &p.Sex, &p.Profession, &p.CaseCount, &p.CreatedAt, &p.UpdatedAt)
+		err := rows.Scan(
+			&p.ID, &p.UserID, &p.Avatar, &p.IsActive, &p.Description,
+			&p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.Age,
+			&p.Sex, &p.Profession, &p.CaseCount, &p.CreatedAt, &p.UpdatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -213,15 +235,14 @@ func (r *PostgresProfileRepo) GetAllUsers(ctx context.Context, limit int) ([]mod
 // --- Update Methods ---
 
 func (r *PostgresProfileRepo) UpdateProfile(ctx context.Context, profile *models.Profile) (*models.Profile, error) {
-	sql, args, err := psql.Update("profiles").
+	sqlStr, args, err := psql.Update("profiles").
 		Set("avatar", profile.Avatar).
 		Set("description", profile.Description).
 		Set("username", profile.Username).
 		Set("name", profile.Name).
 		Set("surname", profile.Surname).
 		Set("patronymic", profile.Patronymic).
-		Set("email", profile.Email).
-		Set("phone_number", profile.PhoneNumber).
+		Set("age", profile.Age).
 		Set("sex", profile.Sex).
 		Set("profession", profile.Profession).
 		Set("updated_at", time.Now()).
@@ -233,22 +254,21 @@ func (r *PostgresProfileRepo) UpdateProfile(ctx context.Context, profile *models
 		return nil, err
 	}
 
-	err = r.db.QueryRowContext(ctx, sql, args...).Scan(&profile.UpdatedAt)
+	err = r.db.QueryRowContext(ctx, sqlStr, args...).Scan(&profile.UpdatedAt)
 	if err != nil {
-		if pgErr, ok := err.(*pq.Error); ok {
-			if pgErr.Code == "23505" {
-				return nil, &repoerr.RepoError{
-					Field: extractField(pgErr.Constraint),
-					Err:   repoerr.ErrConflict,
-				}
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return nil, &repoerr.RepoError{
+				Field: extractField(pgErr.Constraint),
+				Err:   repoerr.ErrConflict,
 			}
 		}
 		return nil, fmt.Errorf("scan profile: %w", err)
 	}
-	return profile, err
+	return profile, nil
 }
 
-func (r *PostgresProfileRepo) PathcProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) {
+func (r *PostgresProfileRepo) PatchProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) {
 	query := psql.Update("profiles").Where(sq.Eq{"user_id": userID}).Set("updated_at", time.Now())
 
 	if updates.Avatar != nil {
@@ -266,11 +286,8 @@ func (r *PostgresProfileRepo) PathcProfile(ctx context.Context, userID int64, up
 	if updates.Patronymic != nil {
 		query = query.Set("patronymic", updates.Patronymic)
 	}
-	if updates.Email != nil {
-		query = query.Set("email", *updates.Email)
-	}
-	if updates.PhoneNumber != nil {
-		query = query.Set("phone_number", updates.PhoneNumber)
+	if updates.Age != nil {
+		query = query.Set("age", updates.Age)
 	}
 	if updates.Sex != nil {
 		query = query.Set("sex", updates.Sex)
@@ -282,26 +299,29 @@ func (r *PostgresProfileRepo) PathcProfile(ctx context.Context, userID int64, up
 		query = query.Set("profession", updates.Profession)
 	}
 
-	sql, args, err := query.Suffix("RETURNING id, user_id, avatar, is_active, description, username, name, surname, patronymic, email, phone_number, sex, profession, case_count, created_at, updated_at").ToSql()
+	sqlStr, args, err := query.Suffix("RETURNING " + profileReturning).ToSql()
 	if err != nil {
 		return nil, err
 	}
 
 	var p models.Profile
-	err = r.db.QueryRowContext(ctx, sql, args...).Scan(&p.ID, &p.UserID, &p.Avatar, &p.IsActive, &p.Description, &p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.Email, &p.PhoneNumber, &p.Sex, &p.Profession, &p.CaseCount, &p.CreatedAt, &p.UpdatedAt)
+	err = r.db.QueryRowContext(ctx, sqlStr, args...).Scan(
+		&p.ID, &p.UserID, &p.Avatar, &p.IsActive, &p.Description,
+		&p.Username, &p.Name, &p.Surname, &p.Patronymic, &p.Age,
+		&p.Sex, &p.Profession, &p.CaseCount, &p.CreatedAt, &p.UpdatedAt,
+	)
 	if err != nil {
-		if pgErr, ok := err.(*pq.Error); ok {
-			if pgErr.Code == "23505" {
-				return nil, &repoerr.RepoError{
-					Field: extractField(pgErr.Constraint),
-					Err:   repoerr.ErrConflict,
-				}
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return nil, &repoerr.RepoError{
+				Field: extractField(pgErr.Constraint),
+				Err:   repoerr.ErrConflict,
 			}
 		}
 		return nil, fmt.Errorf("scan profile: %w", err)
 	}
 
-	return &p, err
+	return &p, nil
 }
 
 func (r *PostgresProfileRepo) UpdateLinks(ctx context.Context, links []models.UserSocialLink) ([]models.UserSocialLink, error) {
@@ -385,52 +405,43 @@ func (r *PostgresProfileRepo) EditPurpose(ctx context.Context, purpose *models.U
 
 // --- Delete Methods ---
 
-func (r *PostgresProfileRepo) DeletePupose(ctx context.Context, id int64) error {
-	sql, args, err := psql.Delete("user_purposes").Where(sq.Eq{"id": id}).ToSql()
+func (r *PostgresProfileRepo) DeletePurpose(ctx context.Context, id int64) error {
+	sqlStr, args, err := psql.Delete("user_purposes").Where(sq.Eq{"id": id}).ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = r.db.ExecContext(ctx, sql, args...)
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
 	return err
 }
 
 func (r *PostgresProfileRepo) DeleteSocial(ctx context.Context, id int64) error {
-	sql, args, err := psql.Delete("user_social_links").Where(sq.Eq{"id": id}).ToSql()
+	sqlStr, args, err := psql.Delete("user_social_links").Where(sq.Eq{"id": id}).ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = r.db.ExecContext(ctx, sql, args...)
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
 	return err
 }
 
 func (r *PostgresProfileRepo) DeleteProfile(ctx context.Context, userID int64) error {
-	query := psql.Update("profiles").
+	sqlStr, args, err := psql.Update("profiles").
 		Set("is_active", false).
 		Where(sq.Eq{"user_id": userID}).
-		PlaceholderFormat(sq.Dollar)
+		ToSql()
 
-	sql, args, err := query.ToSql()
 	if err != nil {
 		return err
 	}
 
-	res, err := r.db.ExecContext(ctx, sql, args...)
-	if err != nil {
-		return err
-	}
-
-	rows, _ := res.RowsAffected()
-	log.Printf("Rows affected: %d", rows)
-
-	return nil
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
+	return err
 }
 
 func (r *PostgresProfileRepo) DeleteProfileWithoutRecovery(ctx context.Context, userID int64) error {
-	// Хард удаление
-	sql, args, err := psql.Delete("profiles").Where(sq.Eq{"user_id": userID}).ToSql()
+	sqlStr, args, err := psql.Delete("profiles").Where(sq.Eq{"user_id": userID}).ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = r.db.ExecContext(ctx, sql, args...)
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
 	return err
 }

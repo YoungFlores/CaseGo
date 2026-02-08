@@ -40,14 +40,14 @@ func NewProfileHandler(service *profileService.ProfileService) *ProfileHandler {
 func (h *ProfileHandler) CreateProfileHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body dto.CreateProfileRequest
@@ -60,16 +60,16 @@ func (h *ProfileHandler) CreateProfileHandler(c *gin.Context) {
 	profile, err := h.service.CreateProfileService(ctx, body, userInfo)
 	if err != nil {
 		var conflictErr *repoerr.RepoError
-        
-        if errors.As(err, &conflictErr) {
-            resp := map[string]string{
-                "error": "Conflict",
-                "field": conflictErr.Field,
-                "message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
-            }
-            c.JSON(http.StatusConflict, resp)
-            return
-        }
+
+		if errors.As(err, &conflictErr) {
+			resp := map[string]string{
+				"error":   "Conflict",
+				"field":   conflictErr.Field,
+				"message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
+			}
+			c.JSON(http.StatusConflict, resp)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create profile"})
 		return
 	}
@@ -77,7 +77,6 @@ func (h *ProfileHandler) CreateProfileHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, profile)
 
 }
-
 
 // AddSocialLinkHandler godoc
 // @Summary Добавить ссылки на соцсети
@@ -91,14 +90,14 @@ func (h *ProfileHandler) CreateProfileHandler(c *gin.Context) {
 func (h *ProfileHandler) AddSocialLinkHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body []dto.SocialLinkDTO
@@ -117,7 +116,6 @@ func (h *ProfileHandler) AddSocialLinkHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, links)
 }
 
-
 // AddPurposesHandler godoc
 // @Summary Создать новые цели
 // @Tags purpose
@@ -130,14 +128,14 @@ func (h *ProfileHandler) AddSocialLinkHandler(c *gin.Context) {
 func (h *ProfileHandler) AddPurposesHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body []dto.UserPurposeDTO
@@ -154,11 +152,10 @@ func (h *ProfileHandler) AddPurposesHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, purposes)
-	
+
 }
 
 // PATCH
-
 
 // PatchProfileHandler godoc
 // @Summary Частично обновить профиль
@@ -169,17 +166,17 @@ func (h *ProfileHandler) AddPurposesHandler(c *gin.Context) {
 // @Param body body dto.UpdateProfilePartialDTO true "Поля для обновления"
 // @Success 200 {object} models.Profile
 // @Router /profile [patch]
-func (h *ProfileHandler) PatchProfileHandler(c  *gin.Context) {
+func (h *ProfileHandler) PatchProfileHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body dto.UpdateProfilePartialDTO
@@ -189,19 +186,19 @@ func (h *ProfileHandler) PatchProfileHandler(c  *gin.Context) {
 		return
 	}
 
-	profile, err := h.service.PatchProfileService(ctx, userInfo, body) 
+	profile, err := h.service.PatchProfileService(ctx, userInfo, body)
 	if err != nil {
 		var conflictErr *repoerr.RepoError
-        
-        if errors.As(err, &conflictErr) {
-            resp := map[string]string{
-                "error": "Conflict",
-                "field": conflictErr.Field,
-                "message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
-            }
-            c.JSON(http.StatusConflict, resp)
-            return
-        }
+
+		if errors.As(err, &conflictErr) {
+			resp := map[string]string{
+				"error":   "Conflict",
+				"field":   conflictErr.Field,
+				"message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
+			}
+			c.JSON(http.StatusConflict, resp)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch profile"})
 		return
 	}
@@ -209,7 +206,7 @@ func (h *ProfileHandler) PatchProfileHandler(c  *gin.Context) {
 	c.JSON(http.StatusOK, profile)
 }
 
-// PUT 
+// PUT
 
 // UpdateProfileHandler godoc
 // @Summary Полное обновление профиля
@@ -224,14 +221,14 @@ func (h *ProfileHandler) PatchProfileHandler(c  *gin.Context) {
 func (h *ProfileHandler) UpdateProfileHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body dto.ProfileInfoDTO
@@ -244,24 +241,23 @@ func (h *ProfileHandler) UpdateProfileHandler(c *gin.Context) {
 	profile, err := h.service.UpdateProfileService(ctx, userInfo, body)
 	if err != nil {
 		var conflictErr *repoerr.RepoError
-        
-        if errors.As(err, &conflictErr) {
-            resp := map[string]string{
-                "error": "Conflict",
-                "field": conflictErr.Field,
-                "message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
-            }
-            c.JSON(http.StatusConflict, resp)
-            return
-        }
+
+		if errors.As(err, &conflictErr) {
+			resp := map[string]string{
+				"error":   "Conflict",
+				"field":   conflictErr.Field,
+				"message": fmt.Sprintf("Value in field %s is already taken", conflictErr.Field),
+			}
+			c.JSON(http.StatusConflict, resp)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update profile"})
 		return
 	}
-	
-	c.JSON(http.StatusOK, profile)
-	
-}
 
+	c.JSON(http.StatusOK, profile)
+
+}
 
 // UpdateLinkHandler godoc
 // @Summary Обновить конкретную соц. ссылку
@@ -283,14 +279,14 @@ func (h *ProfileHandler) UpdateLinkHandler(c *gin.Context) {
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body dto.SocialLinkDTO
@@ -303,12 +299,12 @@ func (h *ProfileHandler) UpdateLinkHandler(c *gin.Context) {
 	links, err := h.service.UpdateSocialLinkService(ctx, body, userInfo, id)
 	if err != nil {
 		var forbErr *repoerr.RepoError
-		
+
 		if errors.As(err, &forbErr) {
 			resp := map[string]string{
-				"error": "Forbidden",
-                "field": forbErr.Field,
-                "message": fmt.Sprintf("Edit id %s", forbErr.Field),
+				"error":   "Forbidden",
+				"field":   forbErr.Field,
+				"message": fmt.Sprintf("Edit id %s", forbErr.Field),
 			}
 			c.JSON(http.StatusForbidden, resp)
 			return
@@ -319,7 +315,6 @@ func (h *ProfileHandler) UpdateLinkHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, links)
 }
-
 
 // @Tags purpose
 // @Accept json
@@ -339,14 +334,14 @@ func (h *ProfileHandler) UpdatePurposeHandler(c *gin.Context) {
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	var body dto.UserPurposeDTO
@@ -359,12 +354,12 @@ func (h *ProfileHandler) UpdatePurposeHandler(c *gin.Context) {
 	purposes, err := h.service.UpdatePurposeService(ctx, body, userInfo, id)
 	if err != nil {
 		var forbErr *repoerr.RepoError
-		
+
 		if errors.As(err, &forbErr) {
 			resp := map[string]string{
-				"error": "Forbidden",
-                "field": forbErr.Field,
-                "message": fmt.Sprintf("Edit id %s", forbErr.Field),
+				"error":   "Forbidden",
+				"field":   forbErr.Field,
+				"message": fmt.Sprintf("Edit id %s", forbErr.Field),
 			}
 			c.JSON(http.StatusForbidden, resp)
 			return
@@ -376,8 +371,7 @@ func (h *ProfileHandler) UpdatePurposeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, purposes)
 }
 
-// Get 
-
+// Get
 
 // GetUserProfileHandler godoc
 // @Summary Получить свой профиль
@@ -390,14 +384,14 @@ func (h *ProfileHandler) UpdatePurposeHandler(c *gin.Context) {
 func (h *ProfileHandler) GetUserProfileHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	profile, err := h.service.GetUserProfileService(ctx, userInfo)
@@ -412,7 +406,6 @@ func (h *ProfileHandler) GetUserProfileHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, profile)
 }
-
 
 // GetUserByProfileIDHandler godoc
 // @Summary Получить профиль по ID
@@ -434,14 +427,14 @@ func (h *ProfileHandler) GetUserByProfileIDHandler(c *gin.Context) {
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	profile, err := h.service.GetUserProfileByIDService(ctx, userInfo, id)
@@ -455,9 +448,8 @@ func (h *ProfileHandler) GetUserByProfileIDHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, profile)
-	
-}
 
+}
 
 // Delete
 
@@ -470,14 +462,14 @@ func (h *ProfileHandler) GetUserByProfileIDHandler(c *gin.Context) {
 func (h *ProfileHandler) DeleteProfileHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	if err := h.service.DeleteProfileService(ctx, userInfo); err != nil {
@@ -500,20 +492,20 @@ func (h *ProfileHandler) DeleteProfileHandler(c *gin.Context) {
 func (h *ProfileHandler) HardDeleteHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	usrID, err := strconv.ParseInt(c.Param("id"), 10, 64) 
+	usrID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	if err := h.service.DeleteProfileWithoutRecoveryService(ctx, userInfo, usrID); err != nil {
@@ -537,7 +529,7 @@ func (h *ProfileHandler) HardDeleteHandler(c *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 403 "Forbidden"
 // @Router /profile/purpose/{id} [delete]
-func (h *ProfileHandler) DeletePuposeHandler(c *gin.Context) {
+func (h *ProfileHandler) DeletePurposeHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -546,17 +538,17 @@ func (h *ProfileHandler) DeletePuposeHandler(c *gin.Context) {
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
-	if err := h.service.DeletePuposeService(ctx, id, userInfo); err != nil {
+	if err := h.service.DeletePurposeService(ctx, id, userInfo); err != nil {
 		if errors.Is(err, apperrors.ErrForbidden) {
 			c.Status(http.StatusForbidden)
 			return
@@ -565,11 +557,9 @@ func (h *ProfileHandler) DeletePuposeHandler(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusNoContent) 
-	
+	c.Status(http.StatusNoContent)
 
 }
-
 
 // DeleteSocialLinkHandler godoc
 // @Summary Удалить соц. ссылку
@@ -588,14 +578,14 @@ func (h *ProfileHandler) DeleteSocialLinkHandler(c *gin.Context) {
 		return
 	}
 
-	userID, role, exist := h.getUserID(c)
+	userID, role, exist := h.GetUserID(c)
 	if !exist {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	var userInfo models.UserIdentity
-	userInfo.Role = role 
+	userInfo.Role = role
 	userInfo.UserID = userID
 
 	if err := h.service.DeleteLinkService(ctx, id, userInfo); err != nil {

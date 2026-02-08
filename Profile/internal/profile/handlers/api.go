@@ -1,0 +1,28 @@
+package profile_handler
+
+import (
+	"github.com/YoungFlores/Case_Go/Profile/pkg/middleware/rs256"
+	"github.com/gin-gonic/gin"
+)
+
+func (h *ProfileHandler) RegisterRoutes(rg *gin.RouterGroup, jwtMiddleWare *rs256.JWTAuthMiddleware) {
+	routers := rg.Group("/profiles")
+	routers.Use(jwtMiddleWare.Handler())
+	{
+		routers.POST("", h.CreateProfileHandler)
+		routers.GET("", h.GetUserProfileHandler)
+		routers.GET("/:id", h.GetUserByProfileIDHandler)
+		routers.PUT("", h.UpdateProfileHandler)
+		routers.PATCH("", h.PatchProfileHandler)
+		routers.DELETE("", h.DeleteProfileHandler)
+		routers.DELETE("/:id", h.HardDeleteHandler)
+
+		routers.POST("/social", h.AddSocialLinkHandler)
+		routers.PUT("/social/:id", h.UpdateLinkHandler)
+		routers.DELETE("/social/:id", h.DeleteSocialLinkHandler)
+
+		routers.POST("/purpose", h.AddPurposesHandler)
+		routers.PUT("/purpose/:id", h.UpdatePurposeHandler)
+		routers.DELETE("/purpose/:id", h.DeletePurposeHandler)
+	}
+}

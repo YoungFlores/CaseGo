@@ -23,14 +23,13 @@ type Profile struct {
 	ID          int64     `json:"id" db:"id"`
 	UserID      int64     `json:"user_id" db:"user_id"`
 	Avatar      string    `json:"avatar" db:"avatar"`
-	IsActive    bool      `json:"is_active" db:"is_active"`  
+	IsActive    bool      `json:"is_active" db:"is_active"`
 	Description string    `json:"description" db:"description"`
 	Username    string    `json:"username" db:"username"`
 	Name        string    `json:"name" db:"name"`
 	Surname     string    `json:"surname" db:"surname"`
 	Patronymic  *string   `json:"patronymic" db:"patronymic"`
-	Email       string    `json:"email" db:"email"`
-	PhoneNumber *string   `json:"phone_number" db:"phone_number"`
+	Age         *int      `json:"age" db:"age"`
 	Sex         *UserSex  `json:"sex" db:"sex"`
 	Profession  *string   `json:"profession" db:"profession"`
 	CaseCount   int       `json:"case_count" db:"case_count"`
@@ -52,12 +51,12 @@ type UserPurpose struct {
 }
 
 type UserIdentity struct {
-    UserID   int64
-    Role UserRole
+	UserID int64
+	Role   UserRole
 }
 
 type UserProfile struct {
-	UsrProfile Profile
+	UsrProfile  Profile
 	UsrPurposes []UserPurpose
-	UsrSocials []UserSocialLink
+	UsrSocials  []UserSocialLink
 }
