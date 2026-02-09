@@ -11,7 +11,7 @@ import (
 	dto "github.com/YoungFlores/Case_Go/Profile/internal/profile/dto"
 	handlers "github.com/YoungFlores/Case_Go/Profile/internal/profile/handlers"
 	"github.com/YoungFlores/Case_Go/Profile/internal/profile/models"
-	repo_mocks "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo/mocks"
+	repoMocks "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo/mocks"
 	profileService "github.com/YoungFlores/Case_Go/Profile/internal/profile/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -21,12 +21,12 @@ import (
 func TestCreateProfileHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockRepo := new(repo_mocks.ProfileRepoMock)
-	mockTx := new(repo_mocks.TxMock)
+	mockRepo := new(repoMocks.ProfileRepoMock)
+	mockTx := new(repoMocks.TxMock)
 	svc := profileService.NewProfileService(mockRepo)
 	handler := handlers.NewProfileHandler(svc)
 
-	userID := int64(123) // Matches utils.go hardcoded value
+	userID := int64(123)
 
 	sex := 0
 	reqBody := dto.CreateProfileRequest{
@@ -82,7 +82,7 @@ func TestCreateProfileHandler(t *testing.T) {
 func TestGetUserProfileHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockRepo := new(repo_mocks.ProfileRepoMock)
+	mockRepo := new(repoMocks.ProfileRepoMock)
 	svc := profileService.NewProfileService(mockRepo)
 	handler := handlers.NewProfileHandler(svc)
 

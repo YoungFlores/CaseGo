@@ -107,7 +107,7 @@ func (m *ProfileRepoMock) UpdateProfile(ctx context.Context, user *models.Profil
 	return args.Get(0).(*models.Profile), args.Error(1)
 }
 
-func (m *ProfileRepoMock) PathcProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) {
+func (m *ProfileRepoMock) PatchProfile(ctx context.Context, userID int64, updates dto.UpdateProfilePartialDTO) (*models.Profile, error) {
 	args := m.Called(ctx, userID, updates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -147,7 +147,7 @@ func (m *ProfileRepoMock) EditPurpose(ctx context.Context, purpose *models.UserP
 	return args.Get(0).([]models.UserPurpose), args.Error(1)
 }
 
-func (m *ProfileRepoMock) DeletePupose(ctx context.Context, id int64) error {
+func (m *ProfileRepoMock) DeletePurpose(ctx context.Context, id int64) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }

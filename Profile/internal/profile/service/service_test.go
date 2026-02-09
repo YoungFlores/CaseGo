@@ -7,15 +7,15 @@ import (
 
 	dto "github.com/YoungFlores/Case_Go/Profile/internal/profile/dto"
 	"github.com/YoungFlores/Case_Go/Profile/internal/profile/models"
-	repo_mocks "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo/mocks"
+	repoMocks "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo/mocks"
 	service "github.com/YoungFlores/Case_Go/Profile/internal/profile/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestCreateProfileService(t *testing.T) {
-	mockRepo := new(repo_mocks.ProfileRepoMock)
-	mockTx := new(repo_mocks.TxMock)
+	mockRepo := new(repoMocks.ProfileRepoMock)
+	mockTx := new(repoMocks.TxMock)
 	svc := service.NewProfileService(mockRepo)
 
 	ctx := context.Background()
@@ -81,7 +81,7 @@ func TestCreateProfileService(t *testing.T) {
 }
 
 func TestGetUserProfileService(t *testing.T) {
-	mockRepo := new(repo_mocks.ProfileRepoMock)
+	mockRepo := new(repoMocks.ProfileRepoMock)
 	svc := service.NewProfileService(mockRepo)
 
 	ctx := context.Background()
@@ -93,8 +93,8 @@ func TestGetUserProfileService(t *testing.T) {
 		Username: "johndoe",
 		IsActive: true,
 	}
-	expectedLinks := []models.UserSocialLink{}
-	expectedPurposes := []models.UserPurpose{}
+	var expectedLinks []models.UserSocialLink
+	var expectedPurposes []models.UserPurpose
 
 	mockRepo.On("GetUserProfile", ctx, userID).Return(expectedProfile, nil)
 	mockRepo.On("GetUserPurposes", ctx, userID).Return(expectedPurposes, nil)
@@ -110,7 +110,7 @@ func TestGetUserProfileService(t *testing.T) {
 }
 
 func TestUpdateProfileService(t *testing.T) {
-	mockRepo := new(repo_mocks.ProfileRepoMock)
+	mockRepo := new(repoMocks.ProfileRepoMock)
 	svc := service.NewProfileService(mockRepo)
 
 	ctx := context.Background()
