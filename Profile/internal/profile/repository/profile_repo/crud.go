@@ -361,7 +361,18 @@ func (r *PostgresProfileRepo) UpdateLinks(ctx context.Context, links []models.Us
 }
 
 func (r *PostgresProfileRepo) EditSocial(ctx context.Context, link *models.UserSocialLink) ([]models.UserSocialLink, error) {
-	_, err := r.UpdateLinks(ctx, []models.UserSocialLink{*link})
+
+	query := psql.Update("user_social_links").
+		Set("type", link.Type).
+		Set("url", link.URL).
+		Where(sq.Eq{"id": link.ID, "user_id": link.UserID})
+
+	sqlStr, args, err := query.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -400,7 +411,16 @@ func (r *PostgresProfileRepo) UpdatePurposes(ctx context.Context, purposes []mod
 }
 
 func (r *PostgresProfileRepo) EditPurpose(ctx context.Context, purpose *models.UserPurpose) ([]models.UserPurpose, error) {
-	_, err := r.UpdatePurposes(ctx, []models.UserPurpose{*purpose})
+	query := psql.Update("user_purposes").
+		Set("purpose", purpose.Purpose).
+		Where(sq.Eq{"id": purpose.ID, "user_id": purpose.UserID})
+
+	sqlStr, args, err := query.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.db.ExecContext(ctx, sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}

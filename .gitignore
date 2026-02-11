@@ -182,5 +182,3 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-
-docker-compose.yml

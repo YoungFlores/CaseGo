@@ -42,7 +42,7 @@ CREATE TABLE categories (
     id SMALLSERIAL PRIMARY KEY,
     parent_id SMALLINT REFERENCES categories(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL
-)
+);
 
 
 CREATE INDEX idx_profiles_user_id ON profiles(user_id);
