@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	repoMocksCat "github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/repo/mocks"
 	dto "github.com/YoungFlores/Case_Go/Profile/internal/profile/dto"
 	"github.com/YoungFlores/Case_Go/Profile/internal/profile/models"
 	repoMocks "github.com/YoungFlores/Case_Go/Profile/internal/profile/repository/profile_repo/mocks"
@@ -16,7 +17,8 @@ import (
 func TestCreateProfileService(t *testing.T) {
 	mockRepo := new(repoMocks.ProfileRepoMock)
 	mockTx := new(repoMocks.TxMock)
-	svc := service.NewProfileService(mockRepo)
+	catRepo := new(repoMocksCat.CategoryRepoMock)
+	svc := service.NewProfileService(mockRepo, catRepo)
 
 	ctx := context.Background()
 	userID := int64(1)
@@ -56,7 +58,7 @@ func TestCreateProfileService(t *testing.T) {
 
 	// Mock expectations
 	mockRepo.On("Begin", ctx).Return(mockTx, nil)
-	mockRepo.On("WithTx", mockTx).Return(mockRepo) // Return same repo mock for simplicity
+	mockRepo.On("WithTx", mockTx).Return(mockRepo) // Return same repo mocks for simplicity
 
 	// Since WithTx returns mockRepo, the following calls are on mockRepo
 	mockRepo.On("CreateProfile", ctx, mock.AnythingOfType("*models.Profile")).Return(expectedProfile, nil)
@@ -82,7 +84,8 @@ func TestCreateProfileService(t *testing.T) {
 
 func TestGetUserProfileService(t *testing.T) {
 	mockRepo := new(repoMocks.ProfileRepoMock)
-	svc := service.NewProfileService(mockRepo)
+	catRepo := new(repoMocksCat.CategoryRepoMock)
+	svc := service.NewProfileService(mockRepo, catRepo)
 
 	ctx := context.Background()
 	userID := int64(1)
@@ -111,7 +114,8 @@ func TestGetUserProfileService(t *testing.T) {
 
 func TestUpdateProfileService(t *testing.T) {
 	mockRepo := new(repoMocks.ProfileRepoMock)
-	svc := service.NewProfileService(mockRepo)
+	catRepo := new(repoMocksCat.CategoryRepoMock)
+	svc := service.NewProfileService(mockRepo, catRepo)
 
 	ctx := context.Background()
 	userID := int64(1)

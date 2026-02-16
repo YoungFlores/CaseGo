@@ -25,6 +25,13 @@ definitions:
     - info
     - purposes
     type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO:
+    properties:
+      profession_id:
+        type: integer
+    required:
+    - profession_id
+    type: object
   github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfileInfoDTO:
     properties:
       age:
@@ -144,6 +151,15 @@ definitions:
         type: integer
       username:
         type: string
+    type: object
+  github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession:
+    properties:
+      id:
+        type: integer
+      profession_id:
+        type: integer
+      user_id:
+        type: integer
     type: object
   github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserSex:
     enum:
@@ -268,6 +284,97 @@ paths:
       summary: Получить подкатегории по ParentID
       tags:
       - profession-category
+  /profession:
+    post:
+      consumes:
+      - application/json
+      description: Добавить категорию профессии
+      parameters:
+      - description: Данные профиля
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Категория успешно добавлена
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Добавить категорию профессии
+      tags:
+      - profession
+  /profession/{id}:
+    delete:
+      parameters:
+      - description: ID ссылки
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      security:
+      - BearerAuth: []
+      summary: Удалить соц. ссылку
+      tags:
+      - social
+    put:
+      consumes:
+      - application/json
+      description: Изменить категорию
+      parameters:
+      - description: Данные профиля
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Категория успешно изменена
+          schema:
+            $ref: '#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Изменить категорию
+      tags:
+      - profession
   /profile:
     delete:
       responses:

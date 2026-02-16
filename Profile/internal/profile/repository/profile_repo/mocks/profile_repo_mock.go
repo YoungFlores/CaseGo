@@ -167,6 +167,40 @@ func (m *ProfileRepoMock) DeleteProfileWithoutRecovery(ctx context.Context, user
 	return args.Error(0)
 }
 
+func (m *ProfileRepoMock) AddProfession(ctx context.Context, profession *models.UserProfession) (*models.UserProfession, error) {
+	args := m.Called(ctx, profession)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.UserProfession), args.Error(1)
+}
+
+func (m *ProfileRepoMock) GetAllProfessions(ctx context.Context, userID int64) ([]models.UserProfession, error) {
+	args := m.Called(ctx, userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]models.UserProfession), args.Error(1)
+}
+
+func (m *ProfileRepoMock) GetProfileIDByProfessionID(ctx context.Context, professionID int64) (int64, error) {
+	args := m.Called(ctx, professionID)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *ProfileRepoMock) EditProfession(ctx context.Context, profession *models.UserProfession) (*models.UserProfession, error) {
+	args := m.Called(ctx, profession)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.UserProfession), args.Error(1)
+}
+
+func (m *ProfileRepoMock) DeleteProfession(ctx context.Context, professionID int64) error {
+	args := m.Called(ctx, professionID)
+	return args.Error(0)
+}
+
 // TxMock implements profilerepo.Tx
 type TxMock struct {
 	mock.Mock
@@ -189,7 +223,7 @@ func (m *TxMock) QueryContext(ctx context.Context, query string, args ...interfa
 
 func (m *TxMock) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	a := m.Called(ctx, query, args)
-	return a.Get(0).(*sql.Row) // this might be tricky to mock properly as *sql.Row is a struct
+	return a.Get(0).(*sql.Row) // this might be tricky to mocks properly as *sql.Row is a struct
 }
 
 func (m *TxMock) Commit() error {

@@ -317,6 +317,7 @@ func (h *ProfileHandler) UpdateLinkHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, links)
 }
 
+// UpdatePurposeHandler godoc
 // @Summary Обновить конкретную цель
 // @Tags purpose
 // @Accept json
@@ -524,7 +525,7 @@ func (h *ProfileHandler) HardDeleteHandler(c *gin.Context) {
 
 }
 
-// DeletePuposeHandler godoc
+// DeletePurposeHandler godoc
 // @Summary Удалить цель
 // @Tags purpose
 // @Security BearerAuth
@@ -603,6 +604,18 @@ func (h *ProfileHandler) DeleteSocialLinkHandler(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// AddProfessionsHandler godoc
+// @Summary Добавить категорию профессии
+// @Description Добавить категорию профессии
+// @Security BearerAuth
+// @Tags profession
+// @Accept json
+// @Produce json
+// @Param body body dto.ProfessionDTO true "Данные профиля"
+// @Success 201 {object} models.UserProfession "Категория успешно добавлена"
+// @Failure 400 {object} map[string]string "Invalid request body"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /profession [post]
 func (h *ProfileHandler) AddProfessionsHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -632,6 +645,18 @@ func (h *ProfileHandler) AddProfessionsHandler(c *gin.Context) {
 
 }
 
+// EditProfessionsHandler godoc
+// @Summary Изменить категорию
+// @Description Изменить категорию
+// @Security BearerAuth
+// @Tags profession
+// @Accept json
+// @Produce json
+// @Param body body dto.ProfessionDTO true "Данные профиля"
+// @Success 200 {object} models.UserProfession "Категория успешно изменена"
+// @Failure 400 {object} map[string]string "Invalid request body"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /profession/{id} [put]
 func (h *ProfileHandler) EditProfessionsHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -680,6 +705,15 @@ func (h *ProfileHandler) EditProfessionsHandler(c *gin.Context) {
 
 }
 
+// DeleteProfessionsHandler godoc
+// @Summary Удалить соц. ссылку
+// @Tags social
+// @Security BearerAuth
+// @Param id path int true "ID ссылки"
+// @Success 204 "No Content"
+// @Failure 400 "Bad Request"
+// @Failure 403 "Forbidden"
+// @Router /profession/{id} [delete]
 func (h *ProfileHandler) DeleteProfessionsHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 

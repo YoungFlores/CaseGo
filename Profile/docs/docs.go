@@ -181,6 +181,151 @@ const docTemplate = `{
                 }
             }
         },
+        "/profession": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавить категорию профессии",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profession"
+                ],
+                "summary": "Добавить категорию профессии",
+                "parameters": [
+                    {
+                        "description": "Данные профиля",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Категория успешно добавлена",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profession/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Изменить категорию",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profession"
+                ],
+                "summary": "Изменить категорию",
+                "parameters": [
+                    {
+                        "description": "Данные профиля",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Категория успешно изменена",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "social"
+                ],
+                "summary": "Удалить соц. ссылку",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID ссылки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
         "/profile": {
             "get": {
                 "security": [
@@ -892,6 +1037,17 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfessionDTO": {
+            "type": "object",
+            "required": [
+                "profession_id"
+            ],
+            "properties": {
+                "profession_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_YoungFlores_Case_Go_Profile_internal_profile_dto.ProfileInfoDTO": {
             "type": "object",
             "required": [
@@ -1063,6 +1219,20 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_YoungFlores_Case_Go_Profile_internal_profile_models.UserProfession": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "profession_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

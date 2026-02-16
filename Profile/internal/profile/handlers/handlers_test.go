@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	repoMocksCat "github.com/YoungFlores/Case_Go/Profile/internal/profession_categories/repo/mocks"
 	dto "github.com/YoungFlores/Case_Go/Profile/internal/profile/dto"
 	handlers "github.com/YoungFlores/Case_Go/Profile/internal/profile/handlers"
 	"github.com/YoungFlores/Case_Go/Profile/internal/profile/models"
@@ -22,8 +23,9 @@ func TestCreateProfileHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	mockRepo := new(repoMocks.ProfileRepoMock)
+	catRepo := new(repoMocksCat.CategoryRepoMock)
 	mockTx := new(repoMocks.TxMock)
-	svc := profileService.NewProfileService(mockRepo)
+	svc := profileService.NewProfileService(mockRepo, catRepo)
 	handler := handlers.NewProfileHandler(svc)
 
 	userID := int64(123)
@@ -83,7 +85,8 @@ func TestGetUserProfileHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	mockRepo := new(repoMocks.ProfileRepoMock)
-	svc := profileService.NewProfileService(mockRepo)
+	catRepo := new(repoMocksCat.CategoryRepoMock)
+	svc := profileService.NewProfileService(mockRepo, catRepo)
 	handler := handlers.NewProfileHandler(svc)
 
 	userID := int64(123) // Matches utils.go hardcoded value
