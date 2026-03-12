@@ -37,7 +37,7 @@ async def google_auth(data: AuthRequest, db: Annotated[AsyncSession, Depends(get
 	usr = await get_user_by_login(user_data['email'], db)
 	if usr is None:
 		usr = await register_user(user, db)
-	tokens_data = create_token_pair(user_id=user.id, additional_data={"user_role": str(usr.role)})
+	tokens_data = create_token_pair(user_id=usr.id, additional_data={"user_role": str(usr.role)})
 	return tokens_data
 
 

@@ -74,7 +74,13 @@ def decode_token(token: str) -> TokenPayload:
     try:
         public_key = settings.JWT_PUBLIC_KEY_PATH.read_text()
 
-        payload = jwt.decode(token, public_key, algorithms=[settings.JWT_ALG])
+        payload = jwt.decode(
+                    token,
+                    public_key,
+                    algorithms=[settings.JWT_ALG],
+                    audience="all",   # ← добавь это
+                    issuer="auth",    # ← и это, раз iss тоже есть в токене
+                )
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(
