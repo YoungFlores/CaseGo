@@ -15,6 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.user import UserResponse, UserRegister
 from services.user import register_user
 
+import secrets
+
 router = APIRouter()
 
 
@@ -31,7 +33,7 @@ async def google_auth(data: AuthRequest, db: Annotated[AsyncSession, Depends(get
 	user = UserRegister(
 		email=user_data['email'],
 		username=user_data['email'],
-		password=None
+		password=secrets.token_hex(32)
 	)
 
 	usr = await get_user_by_login(user_data['email'], db)
